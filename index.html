@@ -1,0 +1,230 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Creador de Fichas - Belleza</title>
+  <style>
+    body {
+      font-family: Calibri, sans-serif;
+      margin: 0;
+      padding: 0;
+      background-color: #fdf3f5;
+    }
+    .header {
+      background-color: #e91e63;
+      color: white;
+      padding: 20px;
+      text-align: center;
+      font-size: 26px;
+      font-weight: bold;
+    }
+    .header::before {
+      content: "💅 ";
+    }
+    .container {
+      max-width: 900px;
+      margin: 30px auto;
+      padding: 0 20px;
+    }
+    .info-box {
+      background-color: #fce4ec;
+      border-left: 4px solid #e91e63;
+      padding: 16px;
+      margin-bottom: 20px;
+      border-radius: 8px;
+    }
+    ul, ol {
+      line-height: 1.8;
+    }
+    button {
+      background-color: #e91e63;
+      color: white;
+      border: none;
+      padding: 10px 16px;
+      font-size: 14px;
+      border-radius: 5px;
+      cursor: pointer;
+      margin: 5px;
+    }
+    button:hover {
+      background-color: #c2185b;
+    }
+    textarea, input[type="text"] {
+      width: 100%;
+      padding: 10px;
+      margin: 8px 0 16px 0;
+      box-sizing: border-box;
+      border: 1px solid #ccc;
+      border-radius: 4px;
+      font-family: inherit;
+    }
+    label {
+      font-weight: bold;
+    }
+    .attribute-group {
+      background: white;
+      padding: 20px;
+      border-radius: 10px;
+      box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+      margin-bottom: 20px;
+    }
+    .categoria {
+      background-color: white;
+      border-radius: 10px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+      padding: 20px;
+      margin-bottom: 30px;
+    }
+    .categoria h3 {
+      margin-top: 0;
+      color: #d63384;
+      font-size: 20px;
+    }
+    .categoria ul {
+      padding-left: 20px;
+      margin-top: 10px;
+    }
+  </style>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+  <script>
+    function descargarPlantilla() {
+      const wb = XLSX.utils.book_new();
+      const ws_data = [
+        ["SKU", "Nombre de Producto", "Tipo de Producto", "Marca", "Beneficios", "Información adicional"],
+        ["123456999", "Labial Super Stay Vinyl Ink Larga Duración", "Labiales", "Maybelline", "Máximo color, Brillo en una sola pasada", "Agita durante al menos 5 segundos antes de aplicártelo para activar su fórmula."]
+      ];
+      const ws = XLSX.utils.aoa_to_sheet(ws_data);
+      XLSX.utils.book_append_sheet(wb, ws, "Plantilla");
+      XLSX.writeFile(wb, "plantilla_fichas_belleza.xlsx");
+    }
+
+    function limpiarTodo() {
+      document.getElementById('excelInput').value = "";
+      document.getElementById('skuUnit').value = "";
+      document.getElementById('nombreUnit').value = "";
+      document.getElementById('tipoUnit').value = "";
+      document.getElementById('marcaUnit').value = "";
+      document.getElementById('beneficiosUnit').value = "";
+      document.getElementById('infoUnit').value = "";
+      document.getElementById('descripcionFinal').innerHTML = "";
+    }
+
+    function agregarUnitario() {
+      const sku = document.getElementById("skuUnit").value;
+      const nombre = document.getElementById("nombreUnit").value;
+      const tipo = document.getElementById("tipoUnit").value;
+      const marca = document.getElementById("marcaUnit").value;
+      const beneficios = document.getElementById("beneficiosUnit").value.split(',');
+      const info = document.getElementById("infoUnit").value;
+
+      let fichaHTML = `
+        <div class="categoria" data-sku="${sku}">
+          <div style="font-size: 12px; color: #888; margin-bottom: 8px;">SKU: ${sku}</div>
+          <h3 style="color: #d63384; font-size: 20px;">${nombre} ${marca}</h3>
+          <div style="background:#f5f5f5; padding: 15px; border-radius: 8px;">
+            <strong>Beneficios:</strong>
+            <ul>
+              ${beneficios.map(b => `<li>${b.trim()}</li>`).join('')}
+            </ul>
+          </div>
+          <p>${info}</p>
+        </div>
+      `;
+      document.getElementById("descripcionFinal").innerHTML += fichaHTML;
+    }
+
+    function procesarExcel() {
+      const fileInput = document.getElementById('excelInput');
+      const reader = new FileReader();
+      reader.onload = function (e) {
+        const data = new Uint8Array(e.target.result);
+        const workbook = XLSX.read(data, { type: 'array' });
+        const sheet = workbook.Sheets[workbook.SheetNames[0]];
+        const productos = XLSX.utils.sheet_to_json(sheet);
+
+        productos.forEach(producto => {
+          const sku = producto["SKU"] || "";
+          const nombre = producto["Nombre de Producto"] || "";
+          const tipo = producto["Tipo de Producto"] || "";
+          const marca = producto["Marca"] || "";
+          const beneficios = (producto["Beneficios"] || "").split(',');
+          const info = producto["Información adicional"] || "";
+
+          let fichaHTML = `
+            <div class="categoria" data-sku="${sku}">
+              <div style="font-size: 12px; color: #888; margin-bottom: 8px;">SKU: ${sku}</div>
+              <h3 style="color: #d63384; font-size: 20px;">${nombre} ${marca}</h3>
+              <div style="background:#f5f5f5; padding: 15px; border-radius: 8px;">
+                <strong>Beneficios:</strong>
+                <ul>
+                  ${beneficios.map(b => `<li>${b.trim()}</li>`).join('')}
+                </ul>
+              </div>
+              <p>${info}</p>
+            </div>
+          `;
+          document.getElementById("descripcionFinal").innerHTML += fichaHTML;
+        });
+      };
+      reader.readAsArrayBuffer(fileInput.files[0]);
+    }
+
+    function descargarExcel() {
+      const fichas = document.querySelectorAll('.categoria');
+      const data = [];
+
+      fichas.forEach(ficha => {
+        const sku = ficha.getAttribute('data-sku') || "";
+        const fichaClone = ficha.cloneNode(true);
+        const skuRef = fichaClone.querySelector('div');
+        if (skuRef) skuRef.remove();
+        const htmlContent = fichaClone.innerHTML.replace(/<h3>/g, '<h3 style="color: #d63384; font-size: 20px;">');
+
+        data.push({
+          SKU: sku,
+          'Descripción Larga (HTML)': `<div class="categoria">${htmlContent}</div>`
+        });
+      });
+
+      const ws = XLSX.utils.json_to_sheet(data);
+      const wb = XLSX.utils.book_new();
+      XLSX.utils.book_append_sheet(wb, ws, "Fichas Generadas");
+      XLSX.writeFile(wb, "fichas_generadas.xlsx");
+    }
+  </script>
+</head>
+<body>
+  <div class="header">Creador de Fichas de Belleza</div>
+  <div class="container">
+    <div class="info-box">
+      <p>📅 <strong>Procesar Excel:</strong> Sube un archivo Excel con los productos para generar automáticamente las fichas. Asegúrate de que contenga los siguientes campos: <em>SKU, Nombre, Tipo, Marca, Beneficios, Información adicional</em>.</p>
+      <p>📄 <strong>Descargar Plantilla:</strong> Puedes descargar una plantilla de ejemplo para completar correctamente.<br>
+      Ejemplo: SKU | Nombre del producto | Tipo de Producto | Marca | Beneficios | Información adicional</p>
+      <p>📝 <strong>Formulario Unitario:</strong> También puedes ingresar productos de forma individual usando el formulario más abajo.</p>
+    </div>
+
+    <div class="attribute-group">
+      <label for="excelInput">📁 Selecciona tu archivo Excel:</label>
+      <input type="file" id="excelInput" accept=".xlsx, .xls">
+      <button onclick="procesarExcel()">📥 Procesar Excel</button>
+      <button onclick="descargarPlantilla()">📄 Descargar Plantilla</button>
+      <button onclick="descargarExcel()">⬇️ Exportar todas las fichas como Excel</button>
+      <button onclick="limpiarTodo()">🧹 Limpiar</button>
+    </div>
+
+    <div class="attribute-group">
+      <label>Ingreso manual de producto:</label>
+      <input type="text" id="skuUnit" placeholder="SKU (ej: 123456999)">
+      <input type="text" id="nombreUnit" placeholder="Nombre de Producto (ej: Labial Super Stay Vinyl Ink Larga Duración)">
+      <input type="text" id="tipoUnit" placeholder="Tipo de Producto (ej: Labiales)">
+      <input type="text" id="marcaUnit" placeholder="Marca (ej: Maybelline)">
+      <input type="text" id="beneficiosUnit" placeholder="Beneficios (ej: Máximo color, Brillo en una sola pasada)">
+      <input type="text" id="infoUnit" placeholder="Información adicional (ej: Agita durante al menos 5 segundos antes de aplicártelo para activar su fórmula.)">
+      <button onclick="agregarUnitario()">Ver Tabla</button>
+    </div>
+
+    <div id="descripcionFinal"></div>
+  </div>
+</body>
+</html>
