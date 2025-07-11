@@ -497,12 +497,8 @@ function limpiarTodo() {
 
     
 
-    document.getElementById("btnProcesar").addEventListener("click", procesarExcel);
-    document.getElementById("btnPlantilla").addEventListener("click", descargarPlantilla);
-    document.getElementById("btnExportar").addEventListener("click", descargarExcel);
-    document.getElementById("btnLimpiar").addEventListener("click", limpiarTodo);
     
-<script>
+    <script>
 
 
 </script>
@@ -610,12 +606,7 @@ const rutaImagen1 = completarRutaImagen(url1);
   }
 
   // Asocia eventos con los botones
-  document.getElementById("btnProcesar").addEventListener("click", procesarExcel);
-  document.getElementById("btnAgregar").addEventListener("click", mostrarTablaDesdeExcel);
-
-
-
-</script>
+  </script>
 <script>
   function actualizarContador() {
     const contador = document.getElementById("contadorFichas");
@@ -636,6 +627,17 @@ function mostrarPreview(input, previewId) {
   const contenedor = document.getElementById(previewId);
   contenedor.innerHTML = valor ? `<img src="${valor}" style='margin-top:5px;max-width:100px;height:auto;border:1px solid #ccc;border-radius:4px;'>` : "";
 }
+</script>
+
+
+<script>
+window.onload = function() {
+  document.getElementById("btnProcesar").addEventListener("click", procesarExcel);
+  document.getElementById("btnPlantilla").addEventListener("click", descargarPlantilla);
+  document.getElementById("btnExportar").addEventListener("click", descargarExcel);
+  document.getElementById("btnLimpiar").addEventListener("click", limpiarTodo);
+  document.getElementById("btnAgregar").addEventListener("click", mostrarTablaDesdeExcel);
+};
 </script>
 
 </body>
